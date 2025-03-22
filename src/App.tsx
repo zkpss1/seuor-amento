@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { HashRouter as Router, Routes, Route } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material';
 import OrcamentoForm from './components/OrcamentoForm';
 import HomePage from './pages/HomePage';
@@ -49,4 +49,4 @@ function App() {
   );
 }
 
-export default App; 
+export default App;
