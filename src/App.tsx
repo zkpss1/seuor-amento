@@ -14,7 +14,6 @@ interface Orcamento {
   cliente: string;
   data: string;
   itens: ItemOrcamento[];
-  total: number;
 }
 
 const theme = createTheme({

@@ -17,7 +17,7 @@ import {
   styled,
   SelectChangeEvent,
 } from '@mui/material';
-import { PDFDownloadLink } from '@react-pdf/renderer';
+import { BlobProvider } from '@react-pdf/renderer';
 import { Material, materiais, categorias } from '../data/materiais';
 import OrcamentoPDF from './OrcamentoPDF';
 import { motion } from 'framer-motion';
@@ -58,14 +58,12 @@ interface ItemOrcamento {
   quantidade: number;
 }
 
-interface OrcamentoData {
-  cliente: string;
-  data: string;
-  itens: ItemOrcamento[];
-}
-
 interface OrcamentoFormProps {
-  onSubmit: (orcamento: OrcamentoData) => void;
+  onSubmit: (orcamento: {
+    cliente: string;
+    data: string;
+    itens: ItemOrcamento[];
+  }) => void;
 }
 
 const OrcamentoForm: React.FC<OrcamentoFormProps> = ({ onSubmit }) => {
@@ -212,7 +210,7 @@ const OrcamentoForm: React.FC<OrcamentoFormProps> = ({ onSubmit }) => {
                 ))}
 
                 <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
-                  <PDFDownloadLink
+                  <BlobProvider
                     document={
                       <OrcamentoPDF
                         cliente={cliente}
@@ -220,18 +218,27 @@ const OrcamentoForm: React.FC<OrcamentoFormProps> = ({ onSubmit }) => {
                         itens={itens}
                       />
                     }
-                    fileName={`lista_materiais_${cliente.replace(/\s+/g, '_').toLowerCase()}.pdf`}
                   >
-                    {({ loading }) => (
+                    {({ blob, loading }) => (
                       <Button
                         variant="contained"
                         color="primary"
-                        disabled={loading}
+                        disabled={loading || !blob}
+                        onClick={() => {
+                          if (blob) {
+                            const url = URL.createObjectURL(blob);
+                            const link = document.createElement('a');
+                            link.href = url;
+                            link.download = `lista_materiais_${cliente.replace(/\s+/g, '_').toLowerCase()}.pdf`;
+                            link.click();
+                            URL.revokeObjectURL(url);
+                          }
+                        }}
                       >
                         {loading ? 'Gerando PDF...' : 'Baixar PDF'}
                       </Button>
                     )}
-                  </PDFDownloadLink>
+                  </BlobProvider>
                 </Box>
               </CardContent>
             </StyledCard>
