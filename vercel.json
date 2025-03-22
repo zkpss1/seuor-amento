@@ -11,8 +11,19 @@
   ],
   "routes": [
     {
+      "src": "/assets/(.*)",
+      "headers": { "cache-control": "public, max-age=31536000, immutable" },
+      "dest": "/assets/$1"
+    },
+    {
+      "src": "/(.*)\\.(ico|png|jpg|jpeg|svg|gif|webp|json|css|js)",
+      "headers": { "cache-control": "public, max-age=31536000, immutable" },
+      "dest": "/$1.$2"
+    },
+    {
       "src": "/(.*)",
-      "dest": "/"
+      "headers": { "cache-control": "public, max-age=0, must-revalidate" },
+      "dest": "/index.html"
     }
   ]
 }
