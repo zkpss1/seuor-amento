@@ -17,7 +17,7 @@ import {
   styled,
   SelectChangeEvent,
 } from '@mui/material';
-import { PDFDownloadLink, usePDF } from '@react-pdf/renderer';
+import { PDFDownloadLink } from '@react-pdf/renderer';
 import { Material, materiais, categorias } from '../data/materiais';
 import OrcamentoPDF from './OrcamentoPDF';
 import { motion } from 'framer-motion';
@@ -62,7 +62,6 @@ interface OrcamentoData {
   cliente: string;
   data: string;
   itens: ItemOrcamento[];
-  total: number;
 }
 
 interface OrcamentoFormProps {
@@ -77,37 +76,22 @@ const OrcamentoForm: React.FC<OrcamentoFormProps> = ({ onSubmit }) => {
   const [itens, setItens] = useState<ItemOrcamento[]>([]);
   const [materiaisFiltrados, setMateriaisFiltrados] = useState(materiais);
 
-  const calcularTotal = () => {
-    return itens.reduce((total, item) => {
-      return total + item.material.precoUnitario * item.quantidade;
-    }, 0);
-  };
-
-  const [pdf] = usePDF({
-    document: itens.length > 0 ? (
-      <OrcamentoPDF
-        cliente={cliente}
-        data={new Date().toISOString()}
-        itens={itens}
-        total={calcularTotal()}
-      />
-    ) : undefined,
-  });
-
   const handleCategoriaChange = (event: SelectChangeEvent) => {
     const categoria = event.target.value;
     setCategoriaSelecionada(categoria);
     setMateriaisFiltrados(
       categoria ? materiais.filter((m) => m.categoria === categoria) : materiais
     );
+    setMaterialSelecionado(null);
   };
 
   const handleAddItem = () => {
     if (materialSelecionado && quantidade) {
-      const novoItem = {
+      const novoItem: ItemOrcamento = {
         material: materialSelecionado,
         quantidade: Number(quantidade),
       };
+
       setItens([...itens, novoItem]);
       setMaterialSelecionado(null);
       setQuantidade('');
@@ -118,239 +102,144 @@ const OrcamentoForm: React.FC<OrcamentoFormProps> = ({ onSubmit }) => {
     setItens(itens.filter((_, i) => i !== index));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const orcamentoData: OrcamentoData = {
-      cliente,
-      data: new Date().toISOString(),
-      itens,
-      total: calcularTotal(),
-    };
-    onSubmit(orcamentoData);
-  };
-
   return (
-    <Box sx={{ 
-      minHeight: '100vh',
-      background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
-      pt: 4,
-      pb: 8
-    }}>
-      <StyledContainer maxWidth="lg">
-        <AnimatedBox
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-        >
-          <StyledPaper>
-            <LogoContainer>
-              <motion.div
-                initial={{ scale: 0.8, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ duration: 0.5 }}
-                style={{
-                  fontSize: '2rem',
-                  fontWeight: 'bold',
-                  color: '#1a237e'
-                }}
+    <StyledContainer>
+      <StyledPaper elevation={3}>
+        <Typography variant="h4" gutterBottom align="center" style={{ marginBottom: '2rem' }}>
+          Lista de Materiais
+        </Typography>
+
+        <Grid container spacing={3}>
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              label="Nome do Cliente"
+              value={cliente}
+              onChange={(e) => setCliente(e.target.value)}
+            />
+          </Grid>
+
+          <Grid item xs={12} md={4}>
+            <FormControl fullWidth>
+              <InputLabel>Categoria</InputLabel>
+              <Select
+                value={categoriaSelecionada}
+                label="Categoria"
+                onChange={handleCategoriaChange}
               >
-                Seu Orçamento
-              </motion.div>
-            </LogoContainer>
+                <MenuItem value="">Todas</MenuItem>
+                {categorias.map((categoria) => (
+                  <MenuItem key={categoria} value={categoria}>
+                    {categoria}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Grid>
 
-            <Typography
-              variant="h4"
-              component="h1"
-              gutterBottom
-              sx={{
-                color: '#1a237e',
-                fontWeight: 700,
-                textAlign: 'center',
-                mb: 4
-              }}
+          <Grid item xs={12} md={5}>
+            <Autocomplete
+              value={materialSelecionado}
+              onChange={(_, newValue) => setMaterialSelecionado(newValue)}
+              options={materiaisFiltrados}
+              getOptionLabel={(option) => option.nome}
+              renderInput={(params) => <TextField {...params} label="Material" />}
+            />
+          </Grid>
+
+          <Grid item xs={12} md={3}>
+            <TextField
+              fullWidth
+              label="Quantidade"
+              type="number"
+              value={quantidade}
+              onChange={(e) => setQuantidade(e.target.value)}
+            />
+          </Grid>
+
+          <Grid item xs={12}>
+            <Button
+              fullWidth
+              variant="contained"
+              color="primary"
+              onClick={handleAddItem}
+              disabled={!materialSelecionado || !quantidade}
             >
-              Geração de Orçamento
-            </Typography>
+              Adicionar Material
+            </Button>
+          </Grid>
+        </Grid>
 
-            <form onSubmit={handleSubmit}>
-              <Grid container spacing={3}>
-                <Grid item xs={12}>
-                  <TextField
-                    fullWidth
-                    label="Nome do Cliente"
-                    value={cliente}
-                    onChange={(e) => setCliente(e.target.value)}
-                    required
-                    variant="outlined"
-                    sx={{ mb: 2 }}
-                  />
-                </Grid>
-
-                <Grid item xs={12} md={6}>
-                  <FormControl fullWidth>
-                    <InputLabel>Categoria</InputLabel>
-                    <Select
-                      value={categoriaSelecionada}
-                      onChange={handleCategoriaChange}
-                      label="Categoria"
-                    >
-                      <MenuItem value="">Todas</MenuItem>
-                      {categorias.map((categoria) => (
-                        <MenuItem key={categoria} value={categoria}>
-                          {categoria}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                </Grid>
-
-                <Grid item xs={12} md={6}>
-                  <Autocomplete
-                    options={materiaisFiltrados}
-                    getOptionLabel={(option) => option.nome}
-                    value={materialSelecionado}
-                    onChange={(_, newValue) => setMaterialSelecionado(newValue)}
-                    renderInput={(params) => (
-                      <TextField {...params} label="Material" required={false} />
-                    )}
-                  />
-                </Grid>
-
-                <Grid item xs={12} md={6}>
-                  <TextField
-                    fullWidth
-                    type="number"
-                    label="Quantidade"
-                    value={quantidade}
-                    onChange={(e) => setQuantidade(e.target.value)}
-                    required={false}
-                  />
-                </Grid>
-
-                <Grid item xs={12} md={6}>
-                  <Button
-                    fullWidth
-                    variant="contained"
-                    onClick={handleAddItem}
-                    disabled={!materialSelecionado || !quantidade}
+        {itens.length > 0 && (
+          <AnimatedBox
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <StyledCard>
+              <CardContent>
+                <Typography variant="h6" gutterBottom>
+                  Materiais Adicionados
+                </Typography>
+                {itens.map((item, index) => (
+                  <Box
+                    key={index}
                     sx={{
-                      height: '56px',
-                      background: 'linear-gradient(45deg, #1a237e 30%, #3949ab 90%)',
-                      color: 'white',
-                      '&:hover': {
-                        background: 'linear-gradient(45deg, #0d47a1 30%, #1a237e 90%)',
-                      }
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      mb: 2,
+                      p: 2,
+                      bgcolor: 'background.default',
+                      borderRadius: 1,
                     }}
                   >
-                    Adicionar Item
-                  </Button>
-                </Grid>
-              </Grid>
-
-              {itens.length > 0 && (
-                <StyledCard>
-                  <CardContent>
-                    <Typography variant="h6" gutterBottom sx={{ color: '#1a237e' }}>
-                      Itens do Orçamento
-                    </Typography>
-                    {itens.map((item, index) => (
-                      <Box
-                        key={index}
-                        sx={{
-                          display: 'flex',
-                          justifyContent: 'space-between',
-                          alignItems: 'center',
-                          p: 2,
-                          borderBottom: '1px solid rgba(0, 0, 0, 0.12)',
-                          '&:last-child': {
-                            borderBottom: 'none',
-                          }
-                        }}
-                      >
-                        <Box>
-                          <Typography variant="subtitle1">{item.material.nome}</Typography>
-                          <Typography variant="body2" color="text.secondary">
-                            {item.material.categoria} - Quantidade: {item.quantidade}
-                          </Typography>
-                        </Box>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                          <Typography variant="subtitle1">
-                            R$ {(item.material.precoUnitario * item.quantidade).toFixed(2)}
-                          </Typography>
-                          <Button
-                            size="small"
-                            color="error"
-                            onClick={() => handleRemoveItem(index)}
-                          >
-                            Remover
-                          </Button>
-                        </Box>
-                      </Box>
-                    ))}
-                    <Box sx={{ mt: 3, textAlign: 'right' }}>
-                      <Typography variant="h6">
-                        Total: R$ {calcularTotal().toFixed(2)}
+                    <Box>
+                      <Typography variant="subtitle1">{item.material.nome}</Typography>
+                      <Typography variant="body2" color="textSecondary">
+                        {item.quantidade} {item.material.unidade}
                       </Typography>
                     </Box>
-                  </CardContent>
-                </StyledCard>
-              )}
+                    <Button
+                      variant="outlined"
+                      color="error"
+                      size="small"
+                      onClick={() => handleRemoveItem(index)}
+                    >
+                      Remover
+                    </Button>
+                  </Box>
+                ))}
 
-              <Box sx={{ mt: 4, display: 'flex', gap: 2, justifyContent: 'center' }}>
-                <Button
-                  type="submit"
-                  variant="contained"
-                  disabled={itens.length === 0}
-                  sx={{
-                    minWidth: '200px',
-                    height: '48px',
-                    background: 'linear-gradient(45deg, #1a237e 30%, #3949ab 90%)',
-                    color: 'white',
-                    '&:hover': {
-                      background: 'linear-gradient(45deg, #0d47a1 30%, #1a237e 90%)',
-                    }
-                  }}
-                >
-                  Salvar Orçamento
-                </Button>
-
-                {itens.length > 0 && (
+                <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
                   <PDFDownloadLink
                     document={
                       <OrcamentoPDF
                         cliente={cliente}
                         data={new Date().toISOString()}
                         itens={itens}
-                        total={calcularTotal()}
                       />
                     }
-                    fileName={`orcamento-${cliente.toLowerCase().replace(/\s+/g, '-')}.pdf`}
+                    fileName={`lista_materiais_${cliente.replace(/\s+/g, '_').toLowerCase()}.pdf`}
                   >
-                    <Button
-                      variant="outlined"
-                      disabled={!pdf.blob}
-                      sx={{
-                        minWidth: '200px',
-                        height: '48px',
-                        borderColor: '#1a237e',
-                        color: '#1a237e',
-                        '&:hover': {
-                          borderColor: '#0d47a1',
-                          backgroundColor: 'rgba(26, 35, 126, 0.04)',
-                        }
-                      }}
-                    >
-                      {!pdf.blob ? 'Gerando PDF...' : 'Baixar PDF'}
-                    </Button>
+                    {({ loading }) => (
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        disabled={loading}
+                      >
+                        {loading ? 'Gerando PDF...' : 'Baixar PDF'}
+                      </Button>
+                    )}
                   </PDFDownloadLink>
-                )}
-              </Box>
-            </form>
-          </StyledPaper>
-        </AnimatedBox>
-      </StyledContainer>
-    </Box>
+                </Box>
+              </CardContent>
+            </StyledCard>
+          </AnimatedBox>
+        )}
+      </StyledPaper>
+    </StyledContainer>
   );
 };
 
-export default OrcamentoForm; 
+export default OrcamentoForm;

@@ -13,207 +13,106 @@ export interface Material {
   capacidade?: string;
   potencia?: string;
   tamanho?: string;
+  voltagem?: string;
+  corrente?: string;
+  cor?: string;
+  condutores?: string;
+  aplicacao?: string;
 }
 
 export const categorias = [
-  "Tubos e Conexões",
-  "Caixas e Reservatórios",
-  "Válvulas e Reguladores",
-  "Bombas e Equipamentos",
-  "Metais e Acessórios",
-  "Esgoto e Drenagem"
+  "Hidráulicos - Água Fria e Quente",
+  "Esgoto",
+  "Elétricos"
 ];
 
 export const materiais: Material[] = [
-  // 1. Tubos e Conexões
-  {
-    id: '1',
-    categoria: "Tubos e Conexões",
-    subcategoria: "Canos PVC",
-    nome: "Cano PVC 20mm (¾\") Água Fria",
+  // 1. Materiais Hidráulicos
+  ...Array.from({length: 10}, (_, i) => ({
+    id: `${i+1}`,
+    categoria: "Hidráulicos - Água Fria e Quente",
+    subcategoria: "Tubos de PVC Água Fria",
+    nome: `Cano de ${20 + i*5} PVC Água Fria`,
     material: "PVC",
-    bitola: "20mm (¾\")",
+    bitola: `${20 + i*5}mm`,
     unidade: "m",
-    precoUnitario: 5.90,
+    precoUnitario: 5.90 + (i*1.5),
     tipoConexao: "Soldável",
-    usoPrincipal: "Água fria"
-  },
-  {
-    id: '2',
-    categoria: "Tubos e Conexões",
-    subcategoria: "Canos PVC",
-    nome: "Cano PVC 25mm (1\") Água Fria",
+    usoPrincipal: "Sistemas hidráulicos de água fria"
+  })),
+
+  // 2. Conexões PVC
+  ...['20', '25', '32', '40', '50'].map((tamanho, i) => ({
+    id: `${11+i}`,
+    categoria: "Hidráulicos - Água Fria e Quente",
+    subcategoria: "Conexões PVC Água Fria",
+    nome: `Joelho 90° ${tamanho}mm PVC`,
     material: "PVC",
-    bitola: "25mm (1\")",
-    unidade: "m",
-    precoUnitario: 7.50,
-    tipoConexao: "Soldável",
-    usoPrincipal: "Água fria"
-  },
-  {
-    id: '3',
-    categoria: "Tubos e Conexões",
-    subcategoria: "Canos CPVC",
-    nome: "Cano CPVC 20mm (¾\") Água Quente",
-    material: "CPVC",
-    bitola: "20mm (¾\")",
-    unidade: "m",
-    precoUnitario: 15.90,
-    tipoConexao: "Soldável",
-    usoPrincipal: "Água quente"
-  },
-  {
-    id: '4',
-    categoria: "Tubos e Conexões",
-    subcategoria: "Canos PPR",
-    nome: "Cano PPR 25mm (1\") Alta Pressão",
-    material: "Polipropileno",
-    bitola: "25mm (1\")",
-    unidade: "m",
-    precoUnitario: 18.50,
-    tipoConexao: "Termofusão",
-    usoPrincipal: "Água quente e fria"
-  },
-  {
-    id: '5',
-    categoria: "Tubos e Conexões",
-    subcategoria: "Conexões",
-    nome: "Joelho 90° PVC 25mm Soldável",
+    bitola: `${tamanho}mm`,
+    unidade: "un",
+    precoUnitario: 2.50 + (i*0.8),
+    tipoConexao: "Soldável"
+  })),
+
+  // 3. Materiais de Esgoto
+  ...['40', '50', '75', '100'].map((diametro, i) => ({
+    id: `${16+i}`,
+    categoria: "Esgoto",
+    subcategoria: "Tubos PVC Esgoto",
+    nome: `Cano Esgoto PVC ${diametro}mm`,
     material: "PVC",
-    bitola: "25mm",
-    unidade: "un",
-    precoUnitario: 2.50,
-    tipoConexao: "Soldável",
-    usoPrincipal: "Mudança de direção"
-  },
-
-  // 2. Caixas e Reservatórios
-  {
-    id: '6',
-    categoria: "Caixas e Reservatórios",
-    subcategoria: "Caixas d'água",
-    nome: "Caixa d'água 1000L Polietileno",
-    material: "Polietileno",
-    capacidade: "1000L",
-    unidade: "un",
-    precoUnitario: 389.90,
-    tipoConexao: "Rosca BSP",
-    usoPrincipal: "Armazenamento de água"
-  },
-  {
-    id: '7',
-    categoria: "Caixas e Reservatórios",
-    subcategoria: "Acessórios",
-    nome: "Boia ¾\" Latão",
-    material: "Latão",
-    bitola: "¾\"",
-    unidade: "un",
-    precoUnitario: 45.90,
-    tipoConexao: "Rosca BSP",
-    usoPrincipal: "Controle do nível da água"
-  },
-
-  // 3. Válvulas e Reguladores
-  {
-    id: '8',
-    categoria: "Válvulas e Reguladores",
-    subcategoria: "Válvulas",
-    nome: "Válvula de Retenção ¾\" Latão",
-    material: "Latão",
-    bitola: "¾\"",
-    unidade: "un",
-    precoUnitario: 58.90,
-    tipoConexao: "Rosca BSP",
-    usoPrincipal: "Impede refluxo"
-  },
-  {
-    id: '9',
-    categoria: "Válvulas e Reguladores",
-    subcategoria: "Registros",
-    nome: "Registro de Gaveta ¾\" Latão",
-    material: "Latão",
-    bitola: "¾\"",
-    unidade: "un",
-    precoUnitario: 49.90,
-    tipoConexao: "Rosca BSP",
-    usoPrincipal: "Controle de fluxo de água"
-  },
-
-  // 4. Bombas e Equipamentos
-  {
-    id: '10',
-    categoria: "Bombas e Equipamentos",
-    subcategoria: "Bombas",
-    nome: "Bomba d'água Centrífuga 1/2 HP",
-    material: "Metal",
-    potencia: "1/2 HP",
-    unidade: "un",
-    precoUnitario: 389.90,
-    tipoConexao: "Rosca BSP",
-    usoPrincipal: "Pressurização de água"
-  },
-  {
-    id: '11',
-    categoria: "Bombas e Equipamentos",
-    subcategoria: "Filtros",
-    nome: "Filtro de Água ¾\" Carvão Ativado",
-    material: "Carvão ativado",
-    bitola: "¾\"",
-    unidade: "un",
-    precoUnitario: 89.90,
-    tipoConexao: "Rosca BSP",
-    usoPrincipal: "Filtragem de impurezas"
-  },
-
-  // 5. Metais e Acessórios
-  {
-    id: '12',
-    categoria: "Metais e Acessórios",
-    subcategoria: "Torneiras",
-    nome: "Torneira para Pia ½\" Latão",
-    material: "Latão",
-    bitola: "½\"",
-    unidade: "un",
-    precoUnitario: 79.90,
-    tipoConexao: "Rosca BSP",
-    usoPrincipal: "Pias e jardins"
-  },
-  {
-    id: '13',
-    categoria: "Metais e Acessórios",
-    subcategoria: "Acessórios",
-    nome: "Engate Flexível 40cm Inox",
-    material: "Aço inox",
-    tamanho: "40cm",
-    unidade: "un",
-    precoUnitario: 29.90,
-    tipoConexao: "Rosca BSP",
-    usoPrincipal: "Ligação de torneiras"
-  },
-
-  // 6. Esgoto e Drenagem
-  {
-    id: '14',
-    categoria: "Esgoto e Drenagem",
-    subcategoria: "Tubos",
-    nome: "Cano Esgoto PVC 100mm",
-    material: "PVC",
-    bitola: "100mm",
+    bitola: `${diametro}mm`,
     unidade: "m",
-    precoUnitario: 25.90,
-    tipoConexao: "Soldável",
-    usoPrincipal: "Drenagem de esgoto"
-  },
-  {
-    id: '15',
-    categoria: "Esgoto e Drenagem",
-    subcategoria: "Caixas",
-    nome: "Caixa Sifonada PVC 100mm",
-    material: "PVC",
-    tamanho: "100mm",
-    unidade: "un",
-    precoUnitario: 32.90,
-    tipoConexao: "Encaixe",
-    usoPrincipal: "Drenagem de água"
-  }
-]; 
+    precoUnitario: 15.90 + (i*5),
+    usoPrincipal: "Sistemas de esgoto e drenagem"
+  })),
+
+  // 4. Materiais Elétricos - Fios Flexíveis
+  ...['1.5', '2.5', '4', '6', '10', '16', '25', '35', '50'].flatMap((bitola, i) => 
+    ['Azul', 'Vermelho', 'Preto', 'Verde', 'Branco', 'Cinza'].map((cor, j) => ({
+      id: `${20 + (i*6) + j}`,
+      categoria: "Elétricos",
+      subcategoria: "Fios Flexíveis",
+      nome: `Fio Flexível ${bitola}mm² ${cor}`,
+      bitola: `${bitola}mm²`,
+      cor: cor,
+      voltagem: "750V/1kV",
+      aplicacao: "Instalações residenciais e comerciais",
+      unidade: "rolo",
+      precoUnitario: 25.90 + (i*8) + (j*0.5),
+      material: "Cobre"
+    }))
+  ),
+
+  // 5. Cabos PP
+  ...['0.75', '1', '1.5', '2.5'].flatMap((bitola, i) =>
+    [2, 3, 4].map((condutores, j) => ({
+      id: `${74 + (i*3) + j}`,
+      categoria: "Elétricos",
+      subcategoria: "Cabos PP",
+      nome: `Cabo PP ${condutores}x${bitola}mm² Preto`,
+      condutores: `${condutores}`,
+      bitola: `${bitola}mm²`,
+      cor: "Preto",
+      aplicacao: "Máquinas e equipamentos industriais",
+      unidade: "rolo",
+      precoUnitario: 45.90 + (i*5) + (j*2),
+      material: "Cobre"
+    }))
+  ),
+
+  // 6. Cabos Paralelos
+  ...['0.5', '0.75', '1', '1.5'].map((bitola, i) => ({
+    id: `${86 + i}`,
+    categoria: "Elétricos",
+    subcategoria: "Cabos Paralelos",
+    nome: `Cabo Paralelo 2x${bitola}mm² Branco`,
+    condutores: "2",
+    bitola: `${bitola}mm²`,
+    cor: "Branco",
+    aplicacao: "Iluminação e eletrônicos",
+    unidade: "rolo",
+    precoUnitario: 18.90 + (i*3),
+    material: "Cobre"
+  }))
+];

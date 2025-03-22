@@ -9,7 +9,6 @@ interface OrcamentoPDFProps {
     material: Material;
     quantidade: number;
   }>;
-  total: number;
 }
 
 const styles = StyleSheet.create({
@@ -51,11 +50,6 @@ const styles = StyleSheet.create({
     padding: 5,
     fontSize: 10
   },
-  total: {
-    marginTop: 20,
-    fontSize: 14,
-    textAlign: 'right'
-  },
   footer: {
     position: 'absolute',
     bottom: 30,
@@ -67,21 +61,20 @@ const styles = StyleSheet.create({
   }
 });
 
-const OrcamentoPDF: React.FC<OrcamentoPDFProps> = ({ cliente, data, itens, total }) => (
+const OrcamentoPDF: React.FC<OrcamentoPDFProps> = ({ cliente, data, itens }) => (
   <Document>
     <Page size="A4" style={styles.page}>
-      <Text style={styles.header}>Orçamento de Materiais Hidráulicos</Text>
+      <Text style={styles.header}>Lista de Materiais Hidráulicos</Text>
       <Text style={{ fontSize: 12, marginBottom: 10 }}>Cliente: {cliente}</Text>
-      <Text style={{ fontSize: 12, marginBottom: 10 }}>Data: {new Date(data).toLocaleDateString()}</Text>
+      <Text style={{ fontSize: 12, marginBottom: 20 }}>Data: {new Date(data).toLocaleDateString()}</Text>
       
       <View style={styles.table}>
         <View style={[styles.tableRow, styles.tableHeader]}>
           <Text style={styles.tableCell}>Material</Text>
           <Text style={styles.tableCell}>Categoria</Text>
           <Text style={styles.tableCell}>Especificações</Text>
-          <Text style={styles.tableCell}>Preço Unit.</Text>
           <Text style={styles.tableCell}>Qtd</Text>
-          <Text style={styles.tableCell}>Subtotal</Text>
+          <Text style={styles.tableCell}>Unidade</Text>
         </View>
         
         {itens.map((item, index) => (
@@ -91,23 +84,19 @@ const OrcamentoPDF: React.FC<OrcamentoPDFProps> = ({ cliente, data, itens, total
             <Text style={styles.tableCell}>
               {item.material.bitola ? `Bitola: ${item.material.bitola}` : ''}
               {item.material.tipoConexao ? `\nConexão: ${item.material.tipoConexao}` : ''}
+              {item.material.material ? `\nMaterial: ${item.material.material}` : ''}
             </Text>
-            <Text style={styles.tableCell}>R$ {item.material.precoUnitario.toFixed(2)}</Text>
             <Text style={styles.tableCell}>{item.quantidade}</Text>
-            <Text style={styles.tableCell}>R$ {(item.quantidade * item.material.precoUnitario).toFixed(2)}</Text>
+            <Text style={styles.tableCell}>{item.material.unidade}</Text>
           </View>
         ))}
       </View>
       
-      <Text style={styles.total}>
-        Total: R$ {total.toFixed(2)}
-      </Text>
-      
       <Text style={styles.footer}>
-        Este orçamento é válido por 7 dias. Consulte as especificações técnicas dos materiais.
+        Lista de materiais gerada em {new Date().toLocaleDateString()}
       </Text>
     </Page>
   </Document>
 );
 
-export default OrcamentoPDF; 
+export default OrcamentoPDF;
