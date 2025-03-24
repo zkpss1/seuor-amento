@@ -27,7 +27,7 @@ import OrcamentoText from './OrcamentoText';
 import ExportOptions, { ExportFormat } from './ExportOptions';
 import { motion } from 'framer-motion';
 import { Link } from '@react-pdf/renderer';
-import html2canvas from 'html2canvas';
+
 
 const StyledContainer = styled(Container)(({ theme }) => ({
   paddingTop: theme.spacing(4),
@@ -113,7 +113,7 @@ const OrcamentoForm: React.FC<OrcamentoFormProps> = ({ onSubmit }) => {
       try {
         const fileName = `lista_materiais_${cliente.replace(/\s+/g, '_').toLowerCase()}.pdf`;
         
-        if (window.Capacitor?.isNative) {
+        if (window.Capacitor && 'isNative' in window.Capacitor) {
           const reader = new FileReader();
           reader.onload = async function() {
             const base64Data = reader.result?.toString().split(',')[1];
@@ -263,7 +263,7 @@ const OrcamentoForm: React.FC<OrcamentoFormProps> = ({ onSubmit }) => {
                     <ExportOptions format={exportFormat} onFormatChange={setExportFormat} />
                   </Box>
                   {exportFormat === 'pdf' && (
-                    <BlobProvider document={<OrcamentoPDF cliente={cliente} data={new Date().toISOString()} itens={itens} />}>
+                    <BlobProvider document={<OrcamentoPDF cliente={cliente} data={new Date().toISOString()} itens={itens} />} >
                       {({ blob, loading }) => (
                         <Button
                           variant="contained"
