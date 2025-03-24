@@ -1,3 +1,11 @@
+declare global {
+  interface Window {
+    Capacitor?: {
+      isNative?: boolean;
+    };
+  }
+}
+
 import React, { useState } from 'react';
 import {
   Paper,
@@ -108,13 +116,7 @@ const OrcamentoForm: React.FC<OrcamentoFormProps> = ({ onSubmit }) => {
     setItens(itens.filter((_, i) => i !== index));
   };
 
-  declare global {
-    interface Window {
-      Capacitor?: {
-        isNative?: boolean;
-      };
-    }
-  }
+
 
   const handleGeneratePDF = async (blob: Blob) => {
     if (blob) {
@@ -272,6 +274,27 @@ const OrcamentoForm: React.FC<OrcamentoFormProps> = ({ onSubmit }) => {
                   </Box>
                   {exportFormat === 'pdf' && (
                     <BlobProvider document={<OrcamentoPDF cliente={cliente} data={new Date().toISOString()} itens={itens} />} >
+                      {({ blob, loading }: { blob: Blob | null; loading: boolean }) => (
+                        <Button
+                          variant="contained"
+                          color="primary"
+                          disabled={loading}
+                          onClick={() => blob && handleGeneratePDF(blob)}
+                        >
+                          {loading ? 'Gerando PDF...' : 'Baixar PDF'}
+                        </Button>
+                      )}
+                    </BlobProvider>
+                        <Button
+                          variant="contained"
+                          color="primary"
+                          disabled={loading}
+                          onClick={() => blob && handleGeneratePDF(blob)}
+                        >
+                          {loading ? 'Gerando PDF...' : 'Baixar PDF'}
+                        </Button>
+                      )}
+                      {({ blob, loading }: { blob: Blob | null; loading: boolean }) => (
                       {({ blob, loading }) => (
                         <Button
                           variant="contained"
