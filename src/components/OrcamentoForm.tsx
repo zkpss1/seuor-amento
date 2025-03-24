@@ -273,33 +273,12 @@ const OrcamentoForm: React.FC<OrcamentoFormProps> = ({ onSubmit }) => {
                     <ExportOptions format={exportFormat} onFormatChange={setExportFormat} />
                   </Box>
                   {exportFormat === 'pdf' && (
-                    <BlobProvider document={<OrcamentoPDF cliente={cliente} data={new Date().toISOString()} itens={itens} />} >
+                    <BlobProvider document={<OrcamentoPDF cliente={cliente} data={new Date().toISOString()} itens={itens} />}>
                       {({ blob, loading }: { blob: Blob | null; loading: boolean }) => (
                         <Button
                           variant="contained"
                           color="primary"
                           disabled={loading}
-                          onClick={() => blob && handleGeneratePDF(blob)}
-                        >
-                          {loading ? 'Gerando PDF...' : 'Baixar PDF'}
-                        </Button>
-                      )}
-                    </BlobProvider>
-                        <Button
-                          variant="contained"
-                          color="primary"
-                          disabled={loading}
-                          onClick={() => blob && handleGeneratePDF(blob)}
-                        >
-                          {loading ? 'Gerando PDF...' : 'Baixar PDF'}
-                        </Button>
-                      )}
-                      {({ blob, loading }: { blob: Blob | null; loading: boolean }) => (
-                      {({ blob, loading }) => (
-                        <Button
-                          variant="contained"
-                          color="primary"
-                          disabled={loading || !blob}
                           onClick={() => blob && handleGeneratePDF(blob)}
                         >
                           {loading ? 'Gerando PDF...' : 'Exportar PDF'}
