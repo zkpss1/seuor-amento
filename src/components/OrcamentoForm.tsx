@@ -293,7 +293,7 @@ const OrcamentoForm: React.FC<OrcamentoFormProps> = ({ onSubmit }) => {
                       onClick={() => {
                         const texto = OrcamentoText({ cliente, data: new Date().toISOString(), itens });
                         if (texto) {
-                          const blob = new Blob([texto], { type: 'text/plain;charset=utf-8' });
+                          const blob = new Blob([String(texto)], { type: 'text/plain;charset=utf-8' });
                           const url = window.URL.createObjectURL(blob);
                           const link = document.createElement('a');
                           link.href = url;
