@@ -108,12 +108,20 @@ const OrcamentoForm: React.FC<OrcamentoFormProps> = ({ onSubmit }) => {
     setItens(itens.filter((_, i) => i !== index));
   };
 
+  declare global {
+    interface Window {
+      Capacitor?: {
+        isNative?: boolean;
+      };
+    }
+  }
+
   const handleGeneratePDF = async (blob: Blob) => {
     if (blob) {
       try {
         const fileName = `lista_materiais_${cliente.replace(/\s+/g, '_').toLowerCase()}.pdf`;
         
-        if (window.Capacitor && 'isNative' in window.Capacitor) {
+        if (window.Capacitor?.isNative) {
           const reader = new FileReader();
           reader.onload = async function() {
             const base64Data = reader.result?.toString().split(',')[1];
@@ -282,15 +290,17 @@ const OrcamentoForm: React.FC<OrcamentoFormProps> = ({ onSubmit }) => {
                       color="primary"
                       onClick={() => {
                         const texto = OrcamentoText({ cliente, data: new Date().toISOString(), itens });
-                        const blob = new Blob([texto.toString()], { type: 'text/plain;charset=utf-8' });
-                        const url = window.URL.createObjectURL(blob);
-                        const link = document.createElement('a');
-                        link.href = url;
-                        link.download = `orcamento_${cliente.replace(/\s+/g, '_').toLowerCase()}.txt`;
-                        document.body.appendChild(link);
-                        link.click();
-                        link.parentNode?.removeChild(link);
-                        window.URL.revokeObjectURL(url);
+                        if (texto) {
+                          const blob = new Blob([texto], { type: 'text/plain;charset=utf-8' });
+                          const url = window.URL.createObjectURL(blob);
+                          const link = document.createElement('a');
+                          link.href = url;
+                          link.download = `orcamento_${cliente.replace(/\s+/g, '_').toLowerCase()}.txt`;
+                          document.body.appendChild(link);
+                          link.click();
+                          link.parentNode?.removeChild(link);
+                          window.URL.revokeObjectURL(url);
+                        }
                       }}
                     >
                       Exportar Texto
