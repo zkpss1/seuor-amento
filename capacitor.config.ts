@@ -5,7 +5,8 @@ const config: CapacitorConfig = {
   appName: 'Seu Orçamento',
   webDir: 'dist',
   server: {
-    androidScheme: 'https'
+    androidScheme: 'https',
+    iosScheme: 'https'
   },
   android: {
     buildOptions: {
@@ -14,7 +15,11 @@ const config: CapacitorConfig = {
       keystoreAlias: undefined,
       keystoreAliasPassword: undefined
     }
+  },
+  ios: {
+    scheme: 'Seu Orçamento',
+    limitsNavigationsToAppBoundDomains: true
   }
 };
 
-export default config; 
+export default config;

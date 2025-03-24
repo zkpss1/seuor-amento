@@ -91,7 +91,7 @@ export default function HomePage() {
               fontSize: { xs: '2.5rem', md: '3.75rem' },
             }}
           >
-            Orçamentos Hidráulicos
+            Gere Orçamentos  com facilidade
           </Typography>
 
           <Typography

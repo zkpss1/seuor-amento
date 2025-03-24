@@ -17,10 +17,17 @@ import {
   styled,
   SelectChangeEvent,
 } from '@mui/material';
+import { createRoot } from 'react-dom/client';
+import { Filesystem, Directory } from '@capacitor/filesystem';
+import { Share } from '@capacitor/share';
 import { BlobProvider } from '@react-pdf/renderer';
 import { Material, materiais, categorias } from '../data/materiais';
 import OrcamentoPDF from './OrcamentoPDF';
+import OrcamentoText from './OrcamentoText';
+import ExportOptions, { ExportFormat } from './ExportOptions';
 import { motion } from 'framer-motion';
+import { Link } from '@react-pdf/renderer';
+import html2canvas from 'html2canvas';
 
 const StyledContainer = styled(Container)(({ theme }) => ({
   paddingTop: theme.spacing(4),
@@ -73,6 +80,7 @@ const OrcamentoForm: React.FC<OrcamentoFormProps> = ({ onSubmit }) => {
   const [quantidade, setQuantidade] = useState('');
   const [itens, setItens] = useState<ItemOrcamento[]>([]);
   const [materiaisFiltrados, setMateriaisFiltrados] = useState(materiais);
+  const [exportFormat, setExportFormat] = useState<ExportFormat>('pdf');
 
   const handleCategoriaChange = (event: SelectChangeEvent) => {
     const categoria = event.target.value;
@@ -98,6 +106,47 @@ const OrcamentoForm: React.FC<OrcamentoFormProps> = ({ onSubmit }) => {
 
   const handleRemoveItem = (index: number) => {
     setItens(itens.filter((_, i) => i !== index));
+  };
+
+  const handleGeneratePDF = async (blob: Blob) => {
+    if (blob) {
+      try {
+        const fileName = `lista_materiais_${cliente.replace(/\s+/g, '_').toLowerCase()}.pdf`;
+        
+        if (window.Capacitor?.isNative) {
+          const reader = new FileReader();
+          reader.onload = async function() {
+            const base64Data = reader.result?.toString().split(',')[1];
+            if (base64Data) {
+              const savedFile = await Filesystem.writeFile({
+                path: fileName,
+                data: base64Data,
+                directory: Directory.Cache
+              });
+              
+              await Share.share({
+                title: 'Lista de Materiais',
+                text: 'Aqui está sua lista de materiais em PDF',
+                url: savedFile.uri,
+                dialogTitle: 'Compartilhar lista de materiais'
+              });
+            }
+          };
+          reader.readAsDataURL(blob);
+        } else {
+          const url = window.URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.setAttribute('download', fileName);
+          document.body.appendChild(link);
+          link.click();
+          link.parentNode?.removeChild(link);
+          window.URL.revokeObjectURL(url);
+        }
+      } catch (error) {
+        console.error('Erro ao gerar o PDF:', error);
+      }
+    }
   };
 
   return (
@@ -208,38 +257,49 @@ const OrcamentoForm: React.FC<OrcamentoFormProps> = ({ onSubmit }) => {
                     </Button>
                   </Box>
                 ))}
+                
+                <Box sx={{ mt: 3, display: 'flex', gap: 2, alignItems: 'center', justifyContent: 'flex-end' }}>
+                  <Box sx={{ width: 200 }}>
+                    <ExportOptions format={exportFormat} onFormatChange={setExportFormat} />
+                  </Box>
+                  {exportFormat === 'pdf' && (
+                    <BlobProvider document={<OrcamentoPDF cliente={cliente} data={new Date().toISOString()} itens={itens} />}>
+                      {({ blob, loading }) => (
+                        <Button
+                          variant="contained"
+                          color="primary"
+                          disabled={loading || !blob}
+                          onClick={() => blob && handleGeneratePDF(blob)}
+                        >
+                          {loading ? 'Gerando PDF...' : 'Exportar PDF'}
+                        </Button>
+                      )}
+                    </BlobProvider>
+                  )}
+                  {exportFormat === 'text' && (
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      onClick={() => {
+                        const texto = OrcamentoText({ cliente, data: new Date().toISOString(), itens });
+                        const blob = new Blob([texto], { type: 'text/plain;charset=utf-8' });
+                        const url = window.URL.createObjectURL(blob);
+                        const link = document.createElement('a');
+                        link.href = url;
+                        link.download = `orcamento_${cliente.replace(/\s+/g, '_').toLowerCase()}.txt`;
+                        document.body.appendChild(link);
+                        link.click();
+                        link.parentNode?.removeChild(link);
+                        window.URL.revokeObjectURL(url);
+                      }}
+                    >
+                      Exportar Texto
+                    </Button>
+                  )}
 
-                <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
-                  <BlobProvider
-                    document={
-                      <OrcamentoPDF
-                        cliente={cliente}
-                        data={new Date().toISOString()}
-                        itens={itens}
-                      />
-                    }
-                  >
-                    {({ blob, loading }) => (
-                      <Button
-                        variant="contained"
-                        color="primary"
-                        disabled={loading || !blob}
-                        onClick={() => {
-                          if (blob) {
-                            const url = URL.createObjectURL(blob);
-                            const link = document.createElement('a');
-                            link.href = url;
-                            link.download = `lista_materiais_${cliente.replace(/\s+/g, '_').toLowerCase()}.pdf`;
-                            link.click();
-                            URL.revokeObjectURL(url);
-                          }
-                        }}
-                      >
-                        {loading ? 'Gerando PDF...' : 'Baixar PDF'}
-                      </Button>
-                    )}
-                  </BlobProvider>
                 </Box>
+
+
               </CardContent>
             </StyledCard>
           </AnimatedBox>

@@ -1,0 +1,2 @@
+import{W as a}from"./index-BpPzXL3M.js";import"./pdf-vendor-D6mtyAZS.js";import"./react-vendor-_URkVt5W.js";import"./motion-vendor-DGDFR8H8.js";class s extends a{async canShare(){return typeof navigator>"u"||!navigator.share?{value:!1}:{value:!0}}async share(e){if(typeof navigator>"u"||!navigator.share)throw this.unavailable("Share API not available in this browser");return await navigator.share({title:e.title,text:e.text,url:e.url}),{}}}export{s as ShareWeb};
+//# sourceMappingURL=web-BlGurndP.js.map
